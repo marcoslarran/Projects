@@ -42,8 +42,13 @@ restaurants = pd.read_parquet('https://storage.googleapis.com/restaurants_datala
 #Funciones de filtro para el DF de restaurantes
 @st.cache_data
 def filtro_restaurante_estado(data, edo):
-    if edo != "Todos":
-        data = data[data['Estado'] == edo]
+    try:
+        if edo != "Todos":
+            data = data[data['Estado'] == edo]
+    except:
+        if edo != 'Todos':
+            rest_filt = restaurants[restaurants['Estado']==edo]
+            data = data[data['Id_Restaurant'].isin(rest_filt['Id_Restaurant'].values)]
     return data
 
 @st.cache_data
@@ -54,14 +59,24 @@ def filtro_restaurante_tipo(data,tipo):
 
 @st.cache_data
 def filtro_restaurante_nombre(data,nombre):
-    if nombre != "Todos":
-        data = data[data['Nombre'] == nombre]
+    try:
+        if nombre != "Todos":
+            data = data[data['Nombre'] == nombre]
+    except:
+        if nombre != 'Todos':
+            rest_filt = restaurants[restaurants['Nombre']==nombre]
+            data = data[data['Id_Restaurant'].isin(rest_filt['Id_Restaurant'].values)]
     return data
 
 @st.cache_data
 def filtro_restaurante_ciudad(data,nombre):
-    if nombre != "Todos":
-        data = data[data['Ciudad'] == nombre]
+    try:
+        if nombre != "Todos":
+            data = data[data['Ciudad'] == nombre]
+    except:
+        if nombre != 'Todos':
+            rest_filt = restaurants[restaurants['Ciudad']==nombre]
+            data = data[data['Id_Restaurant'].isin(rest_filt['Id_Restaurant'].values)]
     return data
 
 @st.cache_data
