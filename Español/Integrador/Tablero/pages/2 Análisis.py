@@ -144,8 +144,7 @@ if slide_tipo == "Todos":
 else: 
     reviews= pd.read_parquet('https://storage.googleapis.com/restaurants_datalake/Archivos_app/'+slide_tipo+'.parquet')
     reviews_fe = filtro_restaurante_estado(reviews, estado_cod)
-    reviews_ft = filtro_restaurante_tipo(reviews_fe, slide_tipo)
-    reviews_fn = filtro_restaurante_nombre(reviews_ft, slide_restaurant)
+    reviews_fn = filtro_restaurante_nombre(reviews_fe, slide_restaurant)
     reviews_fc = filtro_restaurante_ciudad(reviews_fn, slide_ciudad)
     reviews_fs = filtro_restaurante_id(reviews_fc, slide_sucursal)
 
