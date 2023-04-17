@@ -1,0 +1,15 @@
+metadata-sitios/
+reviews-estados/
+yelp/
+reviews_final.parquet
+usuarios.csv
+google_alabama_reviews_1.json
+google_metadata_1.json
+restaurants.parquet
+prueba.ipynb
+st_tablero/
+Reviews por tipo/
+sistema_recomendación/reviews_ml.parquet
+americana_prueba.parquet
+oriental_prueba.parquet
+italiana_prueba.parquet
