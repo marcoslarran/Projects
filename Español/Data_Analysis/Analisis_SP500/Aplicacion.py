@@ -116,7 +116,7 @@ lista_empresas = list(sector_comp['Security'].unique())
 market_caps = []
 last_stock_value = []
 for symbol in sector_comp.Symbol.values:
-    market_caps.append(round(yf.Ticker(symbol).fast_info['marketCap']/1000000000,2))
+    market_caps.append(round(yf.Ticker(symbol).fast_info['marketCap']/1000000,2))
     last_stock_value.append(round(yf.Ticker(symbol).history('1d')['Close'].values[0],2))
 sector_comp['Market Capitalization'] = market_caps
 sector_comp['Current stock value'] = last_stock_value
@@ -125,7 +125,7 @@ sector_comp['Current stock value'] = last_stock_value
 fig5 = plt.figure()
 sns.scatterplot(data=sector_comp,x='Market Capitalization',y='Current stock value')
 plt.ylabel('Precio del activo (US$)')
-plt.xlabel('Capitalización de mercado (MM US$)')
+plt.xlabel('Capitalización de mercado (M US$)')
 st.pyplot(fig5)
 
 #Ploteamos el market cap y valor actual de la acción de la mitad con mayores valores.
@@ -134,7 +134,7 @@ sns.barplot(data=sector_comp.sort_values(by='Market Capitalization',
             ascending=False).head(int(sector_comp.shape[0]/2)),
             x='Market Capitalization',y='Symbol',orient='h',ax=ax2[0])
 ax2[0].set_ylabel('Simbolo')
-ax2[0].set_xlabel('Capitalización de mercado (US$)',loc='left')
+ax2[0].set_xlabel('Capitalización de mercado (M US$)',loc='left')
 sns.barplot(data=sector_comp.sort_values(by='Current stock value',
             ascending=False).head(int(sector_comp.shape[0]/2)),
             x='Current stock value',y='Symbol',orient='h',ax=ax2[1])
