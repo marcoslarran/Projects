@@ -112,11 +112,20 @@ sector_selec = st.selectbox('Elija sector para profundizar',options=lista_sector
 sector_comp = sp500_empresas[sp500_empresas['GICS Sector']==sector_selec]
 lista_empresas = list(sector_comp['Security'].unique())
 
+#Agregamos los valores de Market Cap y ultimo valor de la acción a la lista de empresas del sector
+market_caps = []
+last_stock_value = []
+for symbol in sector_comp.Symbol.values:
+    market_caps.append(round(yf.Ticker(symbol).fast_info['marketCap']/1000000000,2))
+    last_stock_value.append(round(yf.Ticker(symbol).history('1d')['Close'].values[0],2))
+sector_comp['Market Capitalization'] = market_caps
+sector_comp['Current stock value'] = last_stock_value
+
 #Antes de adentrarnos a analizar cada empresa, las comparamos en su conjunto. Ploteamos un scatterplot.
 fig5 = plt.figure()
 sns.scatterplot(data=sector_comp,x='Market Capitalization',y='Current stock value')
 plt.ylabel('Precio del activo (US$)')
-plt.xlabel('Capitalización de mercado (US$)')
+plt.xlabel('Capitalización de mercado (MM US$)')
 st.pyplot(fig5)
 
 #Ploteamos el market cap y valor actual de la acción de la mitad con mayores valores.
