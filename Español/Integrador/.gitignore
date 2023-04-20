@@ -13,3 +13,4 @@ sistema_recomendación/reviews_ml.parquet
 americana_prueba.parquet
 oriental_prueba.parquet
 italiana_prueba.parquet
+pyspark_env/

@@ -4,38 +4,36 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
+import yfinance as yf
 sns.set()
 
 #Definimos función para guardar los datasets en dataframes.
-def leerCSVdeIndices (simbolo:str):
-    try:
-        df = pd.read_csv(simbolo+'.csv',index_col=0)
-    except:
-        try:
-            df = pd.read_csv('Sectores/'+simbolo+'.csv',index_col=0)
-        except:
-            df = pd.read_csv('Empresas/'+simbolo+'.csv',index_col=0)
-    df.index = pd.to_datetime(df.index)
+
+def impData (symbol:str,comp=False):
+    df = pd.DataFrame(yf.Ticker(symbol).history('23y'))
+    df.index=df.index.strftime('%Y-%m-%d')
+    df.index=pd.to_datetime(df.index)
+    if comp:
+        df.drop(columns=['Open','High','Low','Stock Splits'],inplace=True)
+    else:
+        df.drop(columns=['Open','High','Low','Dividends','Stock Splits'],inplace=True)
     return df
 
 #Ponemos la fuente
 st.markdown('###### Fuente: Yahoo Finance')
-st.markdown('###### Datos actualizados al día 2023-02-23')
 
 #Le agregamos un título
-st.title('Análisis inicial')
-
-st.markdown('#### Utilizando la aplicación puede realizarse un análisis gráfico de las empresas que componen el índice SP500')
+st.title('Análisis de empresas - SP500')
 
 #Creamos el gráfico interactivo del índice SP500 donde vamos a analizar su comportamiento a lo largo de estos 23 años
-sp500 = leerCSVdeIndices('sp500')
+sp500 = impData('^GSPC')
 st.write('')
 st.write('')
-st.write('##### Evolucion del índice SP500 desde el año 2000')
+st.write('##### Evolucion del índice SP500 en los últimos 23 años')
 st.write('')
 st.write('')
 fig1 = plt.figure(figsize=(8,6))
-fecha_inicio,fecha_fin = st.slider('Definir fechas de gráfico',value=(datetime.combine(sp500.index.min(), datetime.min.time()),
+fecha_inicio,fecha_fin = st.slider('Definir período de análisis',value=(datetime.combine(sp500.index.min(), datetime.min.time()),
                                                         datetime.combine(sp500.index.max(), datetime.min.time())),
                     step=timedelta(days=1))
 sns.lineplot(data=sp500[(sp500.index>fecha_inicio)&(sp500.index<fecha_fin)],y='Close',
@@ -49,14 +47,17 @@ st.write('')
 st.write('')
 
 #Seleccionamos un sector para analizar a profundidad.
-st.write('##### Evolucion de los distintos sectores desde el año 2000')
+st.write('##### Evolucion de los distintos sectores en los últimos 23 años')
 sp500_empresas = pd.read_csv('Empresas_SP500_con_marketcap.csv')
 lista_sectores = list(sp500_empresas['GICS Sector'].unique())
 lista_sectores.remove('Energy')
 sector = st.selectbox('Elija sector a analizar',options=lista_sectores)
 
+industrias = {'Materials':15,'Industrials':20,'Consumer Discretionary':25,'Consumer Staples':30,'Health Care':35,
+              'Financials':40,'Information Technology':45,'Communication Services':50,'Utilities':55,'Real Estate':60}
+
 #Importamos la data de este sector.
-sp_sector = leerCSVdeIndices(sector)
+sp_sector = impData('^SP500-'+str(industrias[sector]))
 
 #Graficamos
 fig2 = plt.figure(figsize=(8,6))
@@ -79,12 +80,12 @@ st.write('')
 st.write('')
 
 #Seleccionamos los sectores a comparar
-st.write('##### Comparación de los distintos sectores desde el año 2000')
+st.write('##### Comparación de la evolución de los distintos sectores en los últimos 23 años')
 sector1,sector2 = st.multiselect('Elija sectores a comparar',options=lista_sectores,max_selections=2,default=lista_sectores[0:2])
 
 #Importamos los datos
-sp_sector1 = leerCSVdeIndices(sector1)
-sp_sector2 = leerCSVdeIndices(sector2)
+sp_sector1 = impData('^SP500-'+str(industrias[sector1]))
+sp_sector2 = impData('^SP500-'+str(industrias[sector2]))
 
 #Graficamos la evolucion de los 2 sectores
 fig3, ax = plt.subplots(1,2,sharey=True,figsize=(12,8))
@@ -103,26 +104,26 @@ ax[1].set_xlabel('')
 st.pyplot(fig3)
 
 #Vamos a analizar las empresas individualmente para quedarnos con unas pocas. Para ello, definimos un sector y habilitamos la elección entre las empresas de este sector.
-sector_seleccionado = st.selectbox('Elija sector para profundizar',options=lista_sectores)
-lista_empresas = list(sp500_empresas[sp500_empresas['GICS Sector']==sector_seleccionado]['Security'].unique())
+sector_selec = st.selectbox('Elija sector para profundizar',options=lista_sectores)
+sector_comp = sp500_empresas[sp500_empresas['GICS Sector']==sector_selec]
+lista_empresas = list(sector_comp['Security'].unique())
 
 #Antes de adentrarnos a analizar cada empresa, las comparamos en su conjunto. Ploteamos un scatterplot.
 fig5 = plt.figure()
-sns.scatterplot(data=sp500_empresas[sp500_empresas['GICS Sector']==sector_seleccionado],
-                x='Market Capitalization',y='Current stock value')
+sns.scatterplot(data=sector_comp,x='Market Capitalization',y='Current stock value')
 plt.ylabel('Precio del activo (US$)')
 plt.xlabel('Capitalización de mercado (US$)')
 st.pyplot(fig5)
 
 #Ploteamos el market cap y valor actual de la acción de la mitad con mayores valores.
 fig4,ax2 = plt.subplots(1,2,figsize=(8,10))
-sns.barplot(data=sp500_empresas[sp500_empresas['GICS Sector']==sector_seleccionado].sort_values(by='Market Capitalization',
-            ascending=False).head(int(sp500_empresas[sp500_empresas['GICS Sector']==sector_seleccionado].shape[0]/2)),
+sns.barplot(data=sector_comp.sort_values(by='Market Capitalization',
+            ascending=False).head(int(sector_comp.shape[0]/2)),
             x='Market Capitalization',y='Symbol',orient='h',ax=ax2[0])
 ax2[0].set_ylabel('Simbolo')
 ax2[0].set_xlabel('Capitalización de mercado (US$)',loc='left')
-sns.barplot(data=sp500_empresas[sp500_empresas['GICS Sector']==sector_seleccionado].sort_values(by='Current stock value',
-            ascending=False).head(int(sp500_empresas[sp500_empresas['GICS Sector']==sector_seleccionado].shape[0]/2)),
+sns.barplot(data=sector_comp.sort_values(by='Current stock value',
+            ascending=False).head(int(sector_comp.shape[0]/2)),
             x='Current stock value',y='Symbol',orient='h',ax=ax2[1])
 ax2[1].set_ylabel('Simbolo')
 ax2[1].set_xlabel('Precio del activo (US$)')
@@ -135,7 +136,7 @@ empresas_seleccionadas = st.multiselect('Seleccione empresas a analizar',options
 if len(empresas_seleccionadas) == 1:
     fig6 = plt.figure(figsize=(8,6))
     simbolo = sp500_empresas[sp500_empresas['Security']==empresas_seleccionadas[0]]['Symbol'].values[0]     #Buscamos el código
-    empresa = leerCSVdeIndices(simbolo)                                                                     #Importamos la data
+    empresa = impData(simbolo,True)                                                                     #Importamos la data
     empresa_tendencia = empresa['Close'].rolling(window=(100),center=True).mean()                           #Obtenemos la media móvil
     empresa_tendencia.dropna(inplace=True)                                                                  #Descartamos los nulos
     sns.lineplot(data=empresa,x=empresa.index,y='Close')                                                    #Gráficamos la evolución de los precios de la empresa
@@ -148,7 +149,7 @@ elif len(empresas_seleccionadas)<4:
     ax3[0].set_ylabel('Precio del activo (US$)')                                                                        #cantidad de selecciones
     for i in range(len(empresas_seleccionadas)):
         simbolo = sp500_empresas[sp500_empresas['Security']==empresas_seleccionadas[i]]['Symbol'].values[0]
-        empresa = leerCSVdeIndices(simbolo)
+        empresa = impData(simbolo,True)
         empresa_tendencia = empresa['Close'].rolling(window=(100),center=True).mean()
         empresa_tendencia.dropna(inplace=True)
         sns.lineplot(data=empresa,x=empresa.index,y='Close',ax=ax3[i])
@@ -162,7 +163,7 @@ elif len(empresas_seleccionadas) == 4:
      ax3[1,0].set_ylabel('Precio del activo (US$)')
      for i in range(len(empresas_seleccionadas)):
         simbolo = sp500_empresas[sp500_empresas['Security']==empresas_seleccionadas[i]]['Symbol'].values[0]
-        empresa = leerCSVdeIndices(simbolo)
+        empresa = impData(simbolo,True)
         empresa_tendencia = empresa['Close'].rolling(window=(100),center=True).mean()
         empresa_tendencia.dropna(inplace=True)                                                 
         if i<2:
@@ -181,7 +182,7 @@ else:
     ax3[1,0].set_ylabel('Precio del activo (US$)')
     for i in range(len(empresas_seleccionadas)):
         simbolo = sp500_empresas[sp500_empresas['Security']==empresas_seleccionadas[i]]['Symbol'].values[0]
-        empresa = leerCSVdeIndices(simbolo)
+        empresa = impData(simbolo,True)
         empresa_tendencia = empresa['Close'].rolling(window=(100),center=True).mean()
         empresa_tendencia.dropna(inplace=True)
         if i<3:
