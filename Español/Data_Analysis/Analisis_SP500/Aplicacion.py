@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
 import yfinance as yf
+import requests
 sns.set()
 
 #Definimos función para guardar los datasets en dataframes.
@@ -48,7 +49,10 @@ st.write('')
 
 #Seleccionamos un sector para analizar a profundidad.
 st.write('##### Evolucion de los distintos sectores en los últimos 23 años')
-sp500_empresas = pd.read_csv('Empresas_SP500_con_marketcap.csv')
+web = requests.get('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')
+sp500_empresas = pd.read_html(web.content)[0]
+sp500_empresas['Symbol'].replace('BRK.B','BRK-B',inplace=True)
+sp500_empresas['Symbol'].replace('BF.B','BF-B',inplace=True)
 lista_sectores = list(sp500_empresas['GICS Sector'].unique())
 lista_sectores.remove('Energy')
 sector = st.selectbox('Elija sector a analizar',options=lista_sectores)
