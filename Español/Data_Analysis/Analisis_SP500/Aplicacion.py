@@ -20,8 +20,6 @@ def impData (symbol:str,comp=False):
         df.drop(columns=['Open','High','Low','Dividends','Stock Splits'],inplace=True)
     return df
 
-language = st.radio('Idioma/Language',['Español','English'],0)
-
 #Ponemos la fuente
 st.markdown('###### Fuente: Yahoo Finance')
 
