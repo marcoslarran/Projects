@@ -1,0 +1,1 @@
+En el siguiente proyecto se realizó el scrapping de un conjunto de imágenes de una página web utilizando el módulo de Python BeautifuSoup.
