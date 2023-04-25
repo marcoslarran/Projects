@@ -14,3 +14,4 @@ americana_prueba.parquet
 oriental_prueba.parquet
 italiana_prueba.parquet
 pyspark_env/
+token.json
