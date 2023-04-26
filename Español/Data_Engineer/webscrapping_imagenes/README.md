@@ -13,3 +13,11 @@ Para realizar el trabajo se utilizaron las siguientes herramientas:
 
 
 ![Stack_tecnologico](Stack.png)
+
+## **Documentos**
+En el presente proyecto se encuentran las siguientes carpetas y archivos:
+* **webscrapping.ipynb:** Notebook con todo el código necesario para realizar el trabajo.
+* **quickstart.py:** Script de python para gestionar permisos de Google Drive API. Fuente: Documentación de Google Drive API
+* **imagenes:** Carpeta con todas las imágenes de las baterías descargadas.
+* **baterias.xlsx:** Excel con el nombre de la batería y un link a la imagen.
+* **Stack.png:** Imagen con el stack tecnológico.
