@@ -1,6 +1,6 @@
 ## Contenido de la carpeta "transformaciones"
 
-* **0. primera aproximacion:** Notebook con el código realizado para el primer acercamiento a la data con el objetivo de explorar como venían los datos, en que formato, etc.
+* **0. Descarga y primera aproximacion:** Notebook con el código realizado para la descarga de los datasets y el primer acercamiento a la data con el objetivo de explorar como venían los datos, en que formato, etc.
 
 * **1. negocios_google.ipynb:** Notebook cuyo objetivo es realizar las transformaciones necesarias en los dataset de negocios de Google.
 
